@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>WebGL 3D Model Viewer Using three.js</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="three.js"></script>
+    <script src="Detector.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script src="OBJLoader.js"></script>
+    <script src="MTLLoader.js"></script>
+
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: hsl(0, 0%, 10%);
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .left,
+        .right {
+            position: absolute;
+            color: #fff;
+            font-family: Geneva, sans-serif;
+        }
+
+        .left {
+            bottom: 1em;
+            left: 1em;
+            text-align: left;
+        }
+
+        .right {
+            top: 0;
+            right: 0;
+            text-align: right;
+        }
+
+        a {
+            color: #f58231;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="left">
+        <p>Pengantar Grafika Komputer<p>
+    </div>
+
+    <script>
+
+        if (!Detector.webgl) {
+            Detector.addGetWebGLMessage();
+        }
+
+        var container;
+
+        var camera, controls, scene, renderer,Player,Bis,Nogo;
+        var lighting, ambient, keyLight, fillLight, backLight;
+
+        var windowHalfX = window.innerWidth / 2;
+        var windowHalfY = window.innerHeight / 2;
+
+        init();
+        animate();
+
+        function init() {
+
+            container = document.createElement('div');
+            document.body.appendChild(container);
+
+            /* Camera */
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+            camera.position.z = 8;
+            camera.position.x = 3;
+
+            /* Scene */
+
+            scene = new THREE.Scene();
+            lighting = false;
+
+            ambient = new THREE.AmbientLight(0xffffff, 1.0);
+            scene.add(ambient);
+
+            
+            
+            //lighting
+            
+            keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(255, 100%, 100%)'), 0.1);
+            keyLight.position.set(-100, 0, 100);
+
+            fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.25);
+            fillLight.position.set(100, 0, 100);
+
+            backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            backLight.position.set(100, 0, -100).normalize();
+            
+            ambient.intensity = 0.5;
+            scene.add(keyLight);
+            scene.add(fillLight);
+            scene.add(backLight);
+
+
+            /* Model */
+
+            var mtlLoader = new THREE.MTLLoader();
+            mtlLoader.setBaseUrl('assets/');
+            mtlLoader.setPath('assets/');
+            mtlLoader.load('cc.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader = new THREE.OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('assets/');
+                objLoader.load('cc.obj', function (object) {
+                	object.position.y = -4;
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 2
+
+            var mtlLoader1 = new THREE.MTLLoader();
+            mtlLoader1.setBaseUrl('assets/');
+            mtlLoader1.setPath('assets/');
+            mtlLoader1.load('kursi.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader1 = new THREE.OBJLoader();
+                objLoader1.setMaterials(materials);
+                objLoader1.setPath('assets/');
+                objLoader1.load('kursi.obj', function (object) {
+
+                	object.position.y = -4;
+                	object.position.x = -16;
+                	object.position.z = -15;
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 3
+
+            var mtlLoader2 = new THREE.MTLLoader();
+            mtlLoader2.setBaseUrl('assets/');
+            mtlLoader2.setPath('assets/');
+            mtlLoader2.load('Helicopter.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader2 = new THREE.OBJLoader();
+                objLoader2.setMaterials(materials);
+                objLoader2.setPath('assets/');
+                objLoader2.load('Helicopter.obj', function (object) {
+
+                	object.position.y = 6;
+                	object.position.x = -15;
+                	object.position.z = -100;
+
+                	Player = object;
+                    scene.add(object);
+
+                });
+
+            });
+            
+            //model 4
+
+            var mtlLoader3 = new THREE.MTLLoader();
+            mtlLoader3.setBaseUrl('assets/');
+            mtlLoader3.setPath('assets/');
+            mtlLoader3.load('bis.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader3 = new THREE.OBJLoader();
+                objLoader3.setMaterials(materials);
+                objLoader3.setPath('assets/');
+                objLoader3.load('bis.obj', function (object) {
+
+                	object.position.y = -4;
+                	object.position.x = -50;
+                	object.position.z = -7;
+
+                	Bis = object;
+                    scene.add(object);
+
+                });
+
+            });
+
+
+            //model 4
+
+            var mtlLoader4 = new THREE.MTLLoader();
+            mtlLoader4.setBaseUrl('assets/');
+            mtlLoader4.setPath('assets/');
+            mtlLoader4.load('bis.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader4 = new THREE.OBJLoader();
+                objLoader4.setMaterials(materials);
+                objLoader4.setPath('assets/');
+                objLoader4.load('Lampu.obj', function (object) {
+
+                	object.position.y = -4;
+                	object.position.x = -7;
+                	object.position.z = 15;
+
+                	object.scale.x = 0.07;
+                	object.scale.y = 0.07;
+                	object.scale.z = 0.07;
+
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 5
+
+            var mtlLoader5 = new THREE.MTLLoader();
+            mtlLoader5.setBaseUrl('assets/');
+            mtlLoader5.setPath('assets/');
+            mtlLoader5.load('Font.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader5 = new THREE.OBJLoader();
+                objLoader5.setMaterials(materials);
+                objLoader5.setPath('assets/');
+                objLoader5.load('Font.obj', function (object) {
+
+                	object.position.y = -4;
+                	object.position.x = 0;
+                	object.position.z = 0;
+
+                	object.scale.x = 0.02;
+                	object.scale.y = 0.04;
+                	object.scale.z = 0.02;
+
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 6
+
+            var mtlLoader6 = new THREE.MTLLoader();
+            mtlLoader6.setBaseUrl('assets/');
+            mtlLoader6.setPath('assets/');
+            mtlLoader6.load('OBJ.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader6 = new THREE.OBJLoader();
+                objLoader6.setMaterials(materials);
+                objLoader6.setPath('assets/');
+                objLoader6.load('OBJ.obj', function (object) {
+
+                	object.position.y = 8;
+                	object.position.x = -1;
+                	object.position.z = 0;
+
+                	object.scale.x = 0.01;
+                	object.scale.y = 0.01;
+                	object.scale.z = 0.01;
+
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 7
+
+            var mtlLoader7 = new THREE.MTLLoader();
+            mtlLoader7.setBaseUrl('assets/');
+            mtlLoader7.setPath('assets/');
+            mtlLoader7.load('dragonfly.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader7 = new THREE.OBJLoader();
+                objLoader7.setMaterials(materials);
+                objLoader7.setPath('assets/');
+                objLoader7.load('dragonfly.obj', function (object) {
+
+                	object.position.y = 9;
+                	object.position.x = -100;
+                	object.position.z = 0;
+
+                	Nogo = object;
+                    scene.add(object);
+
+                });
+
+            });
+
+            //model 8
+
+            var mtlLoader8 = new THREE.MTLLoader();
+            mtlLoader8.setBaseUrl('assets/');
+            mtlLoader8.setPath('assets/');
+            mtlLoader8.load('Mobil.mtl', function (materials) {
+
+                materials.preload();
+
+                var objLoader8 = new THREE.OBJLoader();
+                objLoader8.setMaterials(materials);
+                objLoader8.setPath('assets/');
+                objLoader8.load('Mobil.obj', function (object) {
+
+                	object.position.y = -3;
+                	object.position.x = -16;
+                	object.position.z = 23;
+
+                    scene.add(object);
+
+                });
+
+            });
+
+
+            /* Renderer */
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(new THREE.Color("hsl(0, 0%, 40%)"));
+
+            container.appendChild(renderer.domElement);
+
+            /* Controls */
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+            controls.enableZoom = true;
+
+            /* Events */
+
+            window.addEventListener('resize', onWindowResize, false);
+            window.addEventListener('keydown', onKeyboardEvent, false);
+
+        }
+
+        function onWindowResize() {
+
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function onKeyboardEvent(e) {
+
+            /*if (e.code === 'L') {
+
+                lighting = !lighting;
+
+                if (lighting) {
+
+                    ambient.intensity = 0.0;
+                    scene.add(keyLight);
+                    scene.add(fillLight);
+                    scene.add(backLight);
+
+                } else {
+
+                    ambient.intensity = 1.0;
+                    scene.remove(keyLight);
+                    scene.remove(fillLight);
+                    scene.remove(backLight);
+
+                }
+
+            }*/ 
+
+
+        }
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            controls.update();
+
+            render();
+
+        }
+
+        function render() {
+
+            renderer.render(scene, camera);
+            if (Player.position.z <= 50)
+            {
+            	Player.position.z += 0.1;
+        	}else
+        	{
+        		Player.position.z = -100;
+        	}
+
+        	if (Bis.position.x <= 50)
+            {
+            	Bis.position.x += 0.1;
+        	}else
+        	{
+        		Bis.position.x = -50;
+        	}
+
+        	if (Nogo.position.x <= 100)
+            {
+            	Nogo.position.x += 0.7;
+        	}else
+        	{
+        		Nogo.position.x = -100;
+        	}
+        }
+
+    </script>
+
+</body>
+</html>
